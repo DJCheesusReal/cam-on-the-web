@@ -24,10 +24,16 @@
   <video id="camera" autoplay playsinline></video>
 
   <script>
-    async function startCamera() {
+    let currentCamera = "user"; // Start with the front camera
+
+    async function startCamera(facingMode = "user") {
       const videoElement = document.getElementById('camera');
+      if (videoElement.srcObject) {
+        // Stop the current stream
+        videoElement.srcObject.getTracks().forEach(track => track.stop());
+      }
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode } });
         videoElement.srcObject = stream;
       } catch (error) {
         console.error('Error accessing the camera', error);
@@ -35,6 +41,13 @@
       }
     }
 
+    document.body.addEventListener('click', () => {
+      // Toggle between front and back cameras
+      currentCamera = currentCamera === "user" ? "environment" : "user";
+      startCamera(currentCamera);
+    });
+
+    // Start with the front camera
     startCamera();
   </script>
 </body>
